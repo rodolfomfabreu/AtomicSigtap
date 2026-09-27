@@ -1,0 +1,28 @@
+# Atomic SIGTAP - exemplo de server block. Ajuste porta/domínio/caminho.
+server {
+    listen 80;                       # a porta que você escolher
+    server_name sigtap.seudominio.com.br;
+
+    root /var/www/atomic_sigtap/dist;  # conteúdo da pasta dist/ gerada no build
+    index index.html;
+
+    # SPA: qualquer rota (/procedimento/0407020039, /cid/K35...) cai no index.html
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Arquivos com hash no nome podem ficar em cache por muito tempo
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # O index.html não pode ficar em cache (senão o navegador não vê o build novo)
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript image/svg+xml;
+}

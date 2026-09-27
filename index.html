@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atomic SIGTAP · Tabela de Procedimentos do SUS</title>
+    <meta name="description" content="Consulte procedimentos, valores, CID-10 e ocupações (CBO) da Tabela Unificada do SUS (SIGTAP), competência a competência." />
+    <meta name="theme-color" content="#faf7f2" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script>
+      // Tema antes de pintar (evita piscar): escolha salva > preferência do sistema
+      try {
+        var t = localStorage.getItem('atomic_sigtap_tema');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro';
+        document.documentElement.dataset.tema = t;
+      } catch (e) { document.documentElement.dataset.tema = 'claro'; }
+    </script>
+  </head>
+  <body>
+    <div id="raiz"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
