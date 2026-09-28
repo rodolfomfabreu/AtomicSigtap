@@ -354,6 +354,12 @@ main { flex: 1; padding-bottom: 56px; }
 .mudanca .campos { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px; font-size: 13px; color: var(--apagado); }
 .mudanca .antes { text-decoration: line-through; opacity: 0.75; }
 .mudanca .depois { color: var(--tinta); font-weight: 600; }
+.mudanca .relacoes { display: grid; gap: 4px; margin-top: 6px; font-size: 13px; color: var(--apagado); line-height: 1.5; }
+.mudanca .relacoes b { color: var(--tinta-2); font-weight: 600; }
+.mudanca .rel + .rel::before { content: ', '; color: var(--apagado); }
+.mudanca .rel.mais { color: var(--verde); }
+.mudanca .rel.menos { color: var(--vinho); text-decoration: line-through; }
+.mudanca .rel.mudou { color: var(--azul); }
 .abas-simples { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 
 .nao-encontrada { text-align: center; padding: 90px 0; }

@@ -14,7 +14,7 @@ const VISOES = {
   alterados: { rotulo: 'Alterados', icone: FiRefreshCw },
   novos: { rotulo: 'Novos', icone: FiPlusCircle },
   excluidos: { rotulo: 'Excluídos', icone: FiMinusCircle },
-  tabelas: { rotulo: 'Outras tabelas', icone: FiLayers },
+  tabelas: { rotulo: 'Tabelas de apoio', icone: FiLayers },
 };
 
 export default function Novidades() {
@@ -25,16 +25,17 @@ export default function Novidades() {
   const anterior = anteriores.some((c) => c.competencia === params.get('anterior')) ? params.get('anterior') : anteriores[0]?.competencia;
   const visao = VISOES[params.get('ver')] ? params.get('ver') : 'alterados';
   const [filtro, setFiltro] = useState('');
+  const [tipo, setTipo] = useState(''); // filtro por tipo de mudança (Alterados)
   const r = useConsulta(competencia && anterior ? '/mudancas' : null, { competencia, anterior });
 
   const trocar = (novo) => { const p = new URLSearchParams(params); Object.entries(novo).forEach(([k, v]) => p.set(k, v)); setParams(p, { replace: true }); };
 
   const p = r.dados?.procedimentos;
   const lista = useMemo(() => {
-    const base = p?.[visao] || [];
+    const base = (p?.[visao] || []).filter((i) => visao !== 'alterados' || !tipo || (i.tipos || []).includes(tipo));
     const f = filtro.trim().toLowerCase();
     return f ? base.filter((i) => i.nome.toLowerCase().includes(f) || i.codigo.includes(f.replace(/\D/g, '') || '§')) : base;
-  }, [p, visao, filtro]);
+  }, [p, visao, filtro, tipo]);
 
   return (
     <div className="miolo">
@@ -42,6 +43,10 @@ export default function Novidades() {
         <div className="olho">Novidades</div>
         <h1>O que mudou na tabela</h1>
         <p>Compare duas competências: procedimentos que entraram, saíram e o que mudou campo a campo (valores, regras, nomes).</p>
+        <p className="apagado" style={{ fontSize: 14 }}>
+          Aqui aparecem <b>todas</b> as diferenças entre os pacotes da Tabela SIGTAP publicados pelo DATASUS. A nota técnica do mês
+          lista só as alterações das portarias daquele período, por isso os números daqui podem ser maiores do que os da nota.
+        </p>
       </div>
 
       {!anteriores.length ? (
@@ -62,7 +67,7 @@ export default function Novidades() {
           {p && (
             <>
               <div className="novidades-resumo quatro" style={{ margin: '14px 0 18px' }}>
-                {[['novos', 'verde', p.novos.length, 'novos'], ['alterados', 'azul', p.alterados.length, 'alterados'], ['excluidos', 'vinho', p.excluidos.length, 'excluídos'], ['tabelas', '', r.dados.tabelas.length, 'outras tabelas com mudança']].map(([k, cor, n, txt]) => (
+                {[['novos', 'verde', p.novos.length, 'novos'], ['alterados', 'azul', p.alterados.length, 'alterados'], ['excluidos', 'vinho', p.excluidos.length, 'excluídos'], ['tabelas', '', r.dados.tabelas.length, 'tabelas de apoio com mudança']].map(([k, cor, n, txt]) => (
                   <button key={k} type="button" className={`novidade ${cor}`} style={{ textAlign: 'left', cursor: 'pointer', font: 'inherit', outline: visao === k ? '2px solid var(--acento)' : undefined }} onClick={() => trocar({ ver: k })} aria-pressed={visao === k}>
                     <strong>{numero(n)}</strong><span>{txt}</span>
                   </button>
@@ -89,6 +94,17 @@ export default function Novidades() {
                   ) : <Vazio titulo="Nenhuma mudança nas demais tabelas" />
                 ) : (
                   <>
+                    {visao === 'alterados' && p.resumo_tipos?.length > 0 && (
+                      <div className="abas-simples" style={{ alignItems: 'center' }}>
+                        <span className="apagado" style={{ fontSize: 13 }}>Por tipo:</span>
+                        <button type="button" className={`botao pequeno${!tipo ? ' primario' : ''}`} onClick={() => setTipo('')}>Todos · {numero(p.alterados.length)}</button>
+                        {p.resumo_tipos.map((r) => (
+                          <button type="button" key={r.tipo} className={`botao pequeno${tipo === r.tipo ? ' primario' : ''}`} onClick={() => setTipo(tipo === r.tipo ? '' : r.tipo)}>
+                            {r.campo ? nomeCampo(r.tipo.slice(6)) : r.rotulo} · {numero(r.procedimentos)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {(p[visao] || []).length > 10 && <input className="campo" style={{ maxWidth: 420, marginBottom: 6 }} value={filtro} onChange={(e) => setFiltro(e.target.value)} placeholder="Filtrar por nome ou código…" aria-label="Filtrar" />}
                     {lista.length === 0 && <Vazio titulo="Nenhum procedimento nesta lista" />}
                     <ul className="lista">
@@ -99,11 +115,34 @@ export default function Novidades() {
                             <span style={{ fontWeight: 500 }}>{i.nome}</span>
                             {i.valor_total !== undefined && <span className="num apagado" style={{ marginLeft: 'auto' }}>{moeda(i.valor_total)}</span>}
                           </div>
-                          {i.campos && (
+                          {i.campos?.length > 0 && (
                             <div className="campos">
                               {i.campos.map((c) => (
-                                <span key={c.campo}>{nomeCampo(c.campo)}: <span className="antes">{mostrar(c.campo, c.antes)}</span> → <span className="depois">{mostrar(c.campo, c.depois)}</span></span>
+                                <span key={c.campo}>
+                                  {nomeCampo(c.campo)}: <span className="antes">{c.antes_texto ?? mostrar(c.campo, c.antes)}</span>
+                                  {' '}→ <span className="depois">{c.depois_texto ?? mostrar(c.campo, c.depois)}</span>
+                                </span>
                               ))}
+                            </div>
+                          )}
+                          {i.relacoes?.length > 0 && (
+                            <div className="relacoes">
+                              {i.relacoes.map((r) => (
+                                <div key={r.chave}>
+                                  <b>{r.rotulo}:</b>{' '}
+                                  {r.incluidos.map((x) => <span key={`+${x.codigo}${x.detalhe || ''}`} className="rel mais">+ {x.codigo_formatado || x.codigo}{x.nome ? ` - ${x.nome}` : ''}{x.detalhe ? ` (${x.detalhe})` : ''}</span>)}
+                                  {r.removidos.map((x) => <span key={`-${x.codigo}${x.detalhe || ''}`} className="rel menos">− {x.codigo_formatado || x.codigo}{x.nome ? ` - ${x.nome}` : ''}</span>)}
+                                  {r.alterados.map((x) => <span key={`~${x.codigo}`} className="rel mudou">{x.codigo_formatado || x.codigo}{x.nome ? ` - ${x.nome}` : ''}: {x.antes || '—'} → {x.depois || '—'}</span>)}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {i.descricao && (
+                            <div className="relacoes">
+                              <div><b>Nova descrição:</b> <span style={{ whiteSpace: 'pre-line' }}>{i.descricao.depois || '(sem descrição)'}</span></div>
+                              {i.descricao.antes && (
+                                <details><summary style={{ cursor: 'pointer' }}>ver descrição anterior</summary><span className="antes" style={{ whiteSpace: 'pre-line' }}>{i.descricao.antes}</span></details>
+                              )}
                             </div>
                           )}
                         </li>
