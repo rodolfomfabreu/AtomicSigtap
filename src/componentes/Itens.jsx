@@ -2,8 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { moeda, numero, TOM_COMPLEXIDADE } from '../lib/formato';
 
-// Linhas de resultado: procedimento, CID e ocupação (CBO)
-
 export function ItemProcedimento({ p, extra = null, compacto = false }) {
   return (
     <li className={`item${compacto ? ' compacto' : ''}`}>

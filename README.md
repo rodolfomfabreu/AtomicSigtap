@@ -63,3 +63,21 @@ src/
 ---
 
 Criado por **Rodolfo M F Abreu** · [github.com/rodolfomfabreu](https://github.com/rodolfomfabreu)
+
+## Sitemap e páginas estáticas (SEO)
+
+`npm run build` roda o `vite build` e depois `scripts/gerar-estatico.mjs`, que
+busca `<VITE_API_URL>/fat/sigtap/publico/sitemap` e gera em `dist/`:
+
+- um `index.html` por procedimento, CID e CBO (título, descrição, canonical,
+  og:* e um resumo em HTML puro - o Google lê sem precisar rodar JS);
+- `sitemap.xml` (índice) + `sitemap-*.xml` e `robots.txt`.
+
+Precisa de `VITE_API_URL`, `VITE_SIGTAP_TOKEN` e `VITE_SITE_URL` de produção.
+Se a API não responder, o build termina normalmente (só avisa) e sai só o SPA.
+
+- `npm run build:app` - só o SPA, sem páginas estáticas.
+- `npm run estatico` - só regera as páginas (depois de importar competência nova).
+
+No nginx use `try_files $uri $uri/index.html /index.html;` (com `$uri/` o
+nginx redireciona para a URL com barra no final).

@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Se algo quebrar na renderização, mostra uma tela amigável em vez da página em branco
 export default class ErroTela extends React.Component {
   constructor(props) {
     super(props);

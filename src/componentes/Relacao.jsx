@@ -4,7 +4,6 @@ import { numero } from '../lib/formato';
 
 const semAcento = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** Seção recolhível com lista (e filtro quando a lista é grande). */
 export default function Relacao({ titulo, itens, render, aberta = false, filtravel = true }) {
   const [filtro, setFiltro] = useState('');
   const visiveis = useMemo(() => {

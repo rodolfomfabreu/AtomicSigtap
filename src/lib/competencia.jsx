@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import { useConsulta } from './api';
 
-// Competência (AAAAMM) consultada no app todo. Começa na vigente (a mais
-// recente importada) e o seletor do topo troca para qualquer anterior.
 const Contexto = createContext(null);
 
 export function CompetenciaProvider({ children }) {

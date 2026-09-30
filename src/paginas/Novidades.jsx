@@ -54,17 +54,18 @@ export default function Novidades() {
       ) : (
         <>
           <div className="filtros" style={{ marginTop: 0 }}>
-            <select value={anterior} onChange={(e) => trocar({ anterior: e.target.value })} aria-label="Competência anterior">
+            <select value={anterior} onChange={(e) => trocar({ anterior: e.target.value })} aria-label="Competência anterior" disabled={r.carregando}>
               {anteriores.map((c) => <option key={c.competencia} value={c.competencia}>{c.rotulo}</option>)}
             </select>
             <FiArrowRight className="apagado" />
             <span className="selo acento" style={{ fontSize: 13, padding: '5px 12px' }}>{competenciaRotulo(competencia)}</span>
+            {r.carregando && <span className="apagado" style={{ fontSize: 13 }} role="status">Comparando…</span>}
           </div>
 
           <Erro erro={r.erro} />
-          {r.carregando && !r.dados && <div className="painel"><p className="apagado" style={{ marginTop: 0 }}>Comparando as competências… pode levar alguns segundos.</p><Carregando /></div>}
+          {r.carregando && <div className="painel"><p className="apagado" style={{ marginTop: 0 }}>Comparando {competenciaRotulo(anterior)} com {competenciaRotulo(competencia)}… pode levar alguns segundos.</p><Carregando /></div>}
 
-          {p && (
+          {p && !r.carregando && (
             <>
               <div className="novidades-resumo quatro" style={{ margin: '14px 0 18px' }}>
                 {[['novos', 'verde', p.novos.length, 'novos'], ['alterados', 'azul', p.alterados.length, 'alterados'], ['excluidos', 'vinho', p.excluidos.length, 'excluídos'], ['tabelas', '', r.dados.tabelas.length, 'tabelas de apoio com mudança']].map(([k, cor, n, txt]) => (

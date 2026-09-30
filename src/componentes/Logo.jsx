@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Marca: o "átomo" da Atomic em traço fino
 export default function Logo({ tamanho = 30 }) {
   return (
     <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" aria-hidden="true">

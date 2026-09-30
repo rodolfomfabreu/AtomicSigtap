@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/gerar-estatico.mjs",
+    "build:app": "vite build",
+    "estatico": "node scripts/gerar-estatico.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { moeda, numero } from '../lib/formato';
 
-/** Valor total do procedimento competência a competência. */
 export function HistoricoValor({ historico = [] }) {
   if (!historico || historico.length < 2) return null;
   const valores = historico.map((h) => h.valor_total || 0);
@@ -47,7 +46,6 @@ export function HistoricoValor({ historico = [] }) {
   );
 }
 
-/** Quantos procedimentos o CID/CBO tinha em cada competência. */
 export function HistoricoContagem({ historico = [], competencia }) {
   if (!historico || historico.length < 2) return null;
   const valores = historico.map((h) => h.procedimentos);

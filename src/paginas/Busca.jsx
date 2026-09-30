@@ -13,8 +13,6 @@ const POR_PAGINA = 25;
 const URL = { procedimentos: '/procedimentos', cid: '/cids', cbo: '/ocupacoes' };
 const ROTULOS = { procedimentos: ['procedimento', 'procedimentos'], cid: ['CID', 'CIDs'], cbo: ['ocupação', 'ocupações'] };
 
-// Busca unificada: o estado vive na URL (?q=&tipo=&pagina=&grupo=...) para
-// o link poder ser compartilhado e o "voltar" do navegador funcionar.
 export default function Busca() {
   const [params, setParams] = useSearchParams();
   const { competencia, apoio } = useCompetencia();

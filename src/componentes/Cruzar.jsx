@@ -9,10 +9,6 @@ const CONFIG = {
   cid: { url: '/cids', placeholder: 'Digite o CID ou a doença (ex.: J18, pneumonia)', rotulo: 'CID', rota: 'cid' },
 };
 
-/**
- * Cruzamento CID × CBO: escolhe a ocupação (na página do CID) ou o CID
- * (na página da ocupação) e a lista de procedimentos fica só com a interseção.
- */
 export default function Cruzar({ tipo, competencia, selecionado, total, contexto, onSelecionar, onLimpar, cruzarDe }) {
   const cfg = CONFIG[tipo];
   const [termo, setTermo] = useState('');

@@ -6,7 +6,6 @@ import { numero } from '../lib/formato';
 const semAcento = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const PASSO = 60;
 
-/** Lista de procedimentos de uma ficha (CID/CBO), com filtro local e "mostrar mais". */
 export default function ProcedimentosFiltraveis({ titulo, itens, vazio, extra, carregando }) {
   const [filtro, setFiltro] = useState('');
   const [limite, setLimite] = useState(PASSO);
