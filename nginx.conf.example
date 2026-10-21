@@ -11,6 +11,13 @@ server {
         try_files $uri $uri/index.html /index.html;
     }
 
+    # Área de downloads (programa SIGTAP.zip em dist/downloads/). Arquivo que
+    # não existe tem que dar 404 de verdade, não o index.html do SPA.
+    location /downloads/ {
+        try_files $uri $uri/index.html =404;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
     # Arquivos com hash no nome podem ficar em cache por muito tempo
     location /assets/ {
         expires 1y;
@@ -24,5 +31,5 @@ server {
     }
 
     gzip on;
-    gzip_types text/css application/javascript image/svg+xml;
+    gzip_types text/css application/javascript image/svg+xml application/xml text/xml application/json;
 }

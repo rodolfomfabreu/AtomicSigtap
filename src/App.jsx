@@ -10,6 +10,7 @@ import Navegar from './paginas/Navegar';
 import Novidades from './paginas/Novidades';
 import NaoEncontrada from './paginas/NaoEncontrada';
 import Contato from './paginas/Contato';
+import Downloads from './paginas/Downloads';
 import { useCompetencia } from './lib/competencia';
 import { Aviso } from './componentes/Estados';
 
@@ -28,6 +29,7 @@ function Rotas() {
         <Route path="navegar/:grupo/:subgrupo" element={<Navegar />} />
         <Route path="navegar/:grupo/:subgrupo/:forma" element={<Navegar />} />
         <Route path="novidades" element={<Novidades />} />
+        <Route path="downloads" element={<Downloads />} />
         <Route path="contato" element={<Contato />} />
         <Route path="*" element={<NaoEncontrada />} />
       </Route>

@@ -81,3 +81,44 @@ Se a API não responder, o build termina normalmente (só avisa) e sai só o SPA
 
 No nginx use `try_files $uri $uri/index.html /index.html;` (com `$uri/` o
 nginx redireciona para a URL com barra no final).
+
+## Downloads (2026-10-21)
+
+Página `/downloads` com duas partes:
+
+- **Programa SIGTAP (Windows)**: o arquivo `public/downloads/SIGTAP.zip` vai para
+  `dist/downloads/SIGTAP.zip` no build e o nginx serve direto. Ele fica fora do
+  git (28 MB, ver `.gitignore`): na máquina que faz o build, mantenha o arquivo
+  em `public/downloads/`. Para trocar a versão, substitua o arquivo e rode o
+  build (ou copie direto para `dist/downloads/` no servidor). A página lê
+  tamanho e data do próprio arquivo; se ele não existir, mostra "em breve".
+- **Pacotes mensais**: vêm da API (`GET /fat/sigtap/publico/downloads`). A cada
+  importação concluída na tela *Atualizar Tabela*, a `projeto_pnl_api` guarda o
+  zip em `files/sigtap/pacotes/<AAAAMM>/` (ou em `SIGTAP_PACOTES_DIR`). Para
+  disponibilizar competências importadas antes desta versão, copie o zip do
+  DATASUS para `files/sigtap/pacotes/<AAAAMM>/` no servidor da API (ou reenvie
+  o pacote substituindo a competência).
+
+No nginx, use o bloco `location /downloads/` do `nginx.conf.example`.
+
+## Histórico do procedimento (2026-10-21)
+
+Na ficha do procedimento, o botão **Histórico** (ou o link `/procedimento/<código>#historico`)
+mostra desde quando o procedimento aparece nas competências importadas, se é
+novo, se saiu e voltou e o que mudou em cada competência (valores, regras,
+CID, CBO, habilitações, descrição...). API: `GET /fat/sigtap/publico/procedimentos/:codigo/historico`.
+
+O histórico só enxerga as competências importadas: quanto mais competências
+antigas forem importadas (como histórico), mais longe vai o "desde quando".
+
+## SEO (2026-10-21)
+
+O build gera páginas estáticas com conteúdo e links internos para tudo o que
+alguém procura no Google: cada procedimento (título com o código com e sem
+pontos: "03.01.01.007-2 - CONSULTA... | SIGTAP 0301010072"), cada CID e CBO
+(com a lista de procedimentos), cada grupo/subgrupo/forma de organização,
+Novidades e Downloads; dados estruturados (JSON-LD: WebSite com busca,
+BreadcrumbList, MedicalProcedure, Dataset, FAQ) e sitemap por tipo.
+
+Opcional no `.env`: `VITE_GOOGLE_SITE_VERIFICATION` e `VITE_BING_SITE_VERIFICATION`
+(código da meta tag de verificação do Google Search Console / Bing Webmaster).

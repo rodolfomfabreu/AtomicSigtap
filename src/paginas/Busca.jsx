@@ -23,7 +23,7 @@ export default function Busca() {
   const complexidade = params.get('complexidade') || '';
   const financiamento = params.get('financiamento') || '';
   const todos = params.get('todos') === '1';
-  useTitulo(q ? `“${q}” em ${MODOS[tipo].rotulo}` : `Buscar ${MODOS[tipo].rotulo}`);
+  useTitulo(q ? `“${q}” em ${MODOS[tipo].rotulo}` : `Buscar ${MODOS[tipo].rotulo}`, null, { noindex: !!q });
 
   const mudar = (novo) => {
     const p = new URLSearchParams(params);

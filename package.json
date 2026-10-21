@@ -9,7 +9,10 @@
     "build": "vite build && node scripts/gerar-estatico.mjs",
     "build:app": "vite build",
     "estatico": "node scripts/gerar-estatico.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pacote": "node scripts/deploy.mjs --so-pacote",
+    "deploy": "node scripts/deploy.mjs",
+    "build:deploy": "npm run build && npm run deploy"
   },
   "dependencies": {
     "react": "^18.3.1",

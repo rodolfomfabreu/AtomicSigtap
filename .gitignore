@@ -3,3 +3,10 @@ dist
 .env
 .env.local
 .env.*.local
+
+# Arquivos grandes de download (ficam fora do git; copie para public/downloads/ na máquina do build)
+public/downloads/*.zip
+/SIGTAP.zip
+
+# Pacote gerado pelo npm run pacote / deploy
+atomic_sigtap-dist.tar.gz

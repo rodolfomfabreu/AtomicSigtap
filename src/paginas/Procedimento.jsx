@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FiChevronRight, FiCopy, FiCheck, FiShare2 } from 'react-icons/fi';
+import {
+  FiChevronRight, FiCopy, FiCheck, FiShare2, FiClock,
+} from 'react-icons/fi';
 import { Carregando, Erro, Aviso } from '../componentes/Estados';
 import Relacao from '../componentes/Relacao';
+import HistoricoProcedimento from '../componentes/HistoricoProcedimento';
 import { HistoricoValor } from '../componentes/Graficos';
 import { useCompetencia } from '../lib/competencia';
 import { useConsulta } from '../lib/api';
 import {
-  moeda, numero, percentual, paragrafos, formatarCid, formatarCbo, TOM_COMPLEXIDADE,
+  moeda, numero, percentual, paragrafos, formatarCid, formatarCbo, TOM_COMPLEXIDADE, competenciaRotulo,
 } from '../lib/formato';
 import { useTitulo } from '../lib/titulo';
+import { useEstatico, ConteudoEstatico, NaoIndexar } from '../lib/estatico';
 
 const naoSeAplica = (v, sufixo = '') => (v === null || v === undefined ? 'Não se aplica' : `${numero(v)}${sufixo}`);
 
@@ -33,20 +37,47 @@ export function BotaoCompartilhar({ titulo }) {
 
 export default function Procedimento() {
   const { codigo } = useParams();
-  const { competencia } = useCompetencia();
+  const { competencia, competencias, vigente } = useCompetencia();
   const r = useConsulta(competencia ? `/procedimentos/${codigo.replace(/\D/g, '')}` : null, { competencia });
   const f = r.dados;
-  useTitulo(f ? `${f.codigo_formatado} ${f.nome}` : 'Procedimento');
+  const estatico = useEstatico();
+  useTitulo(
+    f ? `${f.codigo_formatado} - ${f.nome} | SIGTAP ${f.codigo}` : 'Procedimento',
+    f ? `${f.codigo_formatado} ${f.nome}: valor total ${moeda(f.valor_total)} (SH ${moeda(f.valor_sh)}, SA ${moeda(f.valor_sa)}, SP ${moeda(f.valor_sp)}), regras, CID-10 e CBO na Tabela SUS (SIGTAP), competência ${f.competencia_rotulo}.` : null,
+  );
 
+  // Histórico (botão no topo da ficha). Abre direto com o link #historico.
+  const [verHistorico, setVerHistorico] = useState(() => window.location.hash === '#historico');
+  const refHistorico = useRef(null);
+  const alternarHistorico = () => {
+    const abrir = !verHistorico;
+    setVerHistorico(abrir);
+    try {
+      window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${abrir ? '#historico' : ''}`);
+    } catch (e) { /* navegador antigo */ }
+  };
+  useEffect(() => {
+    if (verHistorico && f && refHistorico.current) refHistorico.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [verHistorico, !!f]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Desde quando aparece (pelo histórico de valores, que já vem na ficha)
+  const primeiraImportada = competencias.length ? competencias[competencias.length - 1].competencia : null;
+  const desde = f?.historico?.[0]?.competencia || null;
+  const novo = !!desde && competencias.length > 1 && desde === vigente && desde !== primeiraImportada;
+
+  if (r.erro && r.erro.status !== 404 && estatico) {
+    return <ConteudoEstatico html={estatico} aviso={<Aviso tipo="info">Não foi possível atualizar os dados agora; mostrando a versão salva da competência vigente.</Aviso>} />;
+  }
   if (r.erro) {
     return (
       <div className="miolo" style={{ paddingTop: 34 }}>
+        {r.erro.status === 404 && <NaoIndexar />}
         <Erro erro={r.erro} />
         {r.erro.status === 404 && <p className="apagado">Ele pode não existir nesta competência. Troque a competência no topo ou <Link to={`/busca?q=${codigo}`}>busque pelo código</Link>.</p>}
       </div>
     );
   }
-  if (!f) return <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
+  if (!f) return estatico ? <ConteudoEstatico html={estatico} /> : <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
 
   const item = (i, extra) => (
     <li key={`${i.codigo}-${i.tipo || ''}-${i.classificacao || ''}`}>
@@ -70,11 +101,20 @@ export default function Procedimento() {
           {f.complexidade_rotulo && <span className={`selo ${TOM_COMPLEXIDADE[f.complexidade] || ''}`}>{f.complexidade_rotulo}</span>}
           {f.financiamento_rotulo && <span className="selo">{f.financiamento_rotulo}</span>}
           <span className="selo acento">Competência {f.competencia_rotulo}</span>
+          {novo && <span className="selo verde">Novo em {competenciaRotulo(desde)}</span>}
         </div>
         <h1>{f.nome}</h1>
         <div className="acoes">
           <BotaoCopiar texto={`${f.codigo_formatado} - ${f.nome}`} />
           <BotaoCompartilhar titulo={`${f.codigo_formatado} ${f.nome}`} />
+          <button type="button" className={`botao pequeno${verHistorico ? ' primario' : ''}`} onClick={alternarHistorico} aria-expanded={verHistorico} aria-controls="historico">
+            <FiClock /> {verHistorico ? 'Fechar histórico' : 'Histórico'}
+            {desde && !verHistorico && (
+              <span className="apagado" style={{ fontWeight: 400 }}>
+                · {desde === primeiraImportada ? `desde antes de ${competenciaRotulo(desde)}` : `desde ${competenciaRotulo(desde)}`}
+              </span>
+            )}
+          </button>
         </div>
       </header>
 
@@ -84,6 +124,12 @@ export default function Procedimento() {
         <div><span>Serviço profissional (SP)</span><strong>{moeda(f.valor_sp)}</strong></div>
         <div className="total"><span>Valor total</span><strong>{moeda(f.valor_total)}</strong></div>
       </div>
+
+      {verHistorico && (
+        <div ref={refHistorico} style={{ marginTop: 20, scrollMarginTop: 80 }}>
+          <HistoricoProcedimento codigo={f.codigo} />
+        </div>
+      )}
 
       <div className="ficha-grade" style={{ marginTop: 20 }}>
         <div>
@@ -188,6 +234,11 @@ export default function Procedimento() {
             {f.historico?.length > 1
               ? <HistoricoValor historico={f.historico} />
               : <p className="apagado" style={{ margin: 0 }}>O histórico aparece quando houver mais de uma competência importada.</p>}
+            {!verHistorico && (
+              <button type="button" className="botao pequeno" style={{ marginTop: 12, width: '100%' }} onClick={alternarHistorico}>
+                <FiClock /> Ver o que mudou em cada competência
+              </button>
+            )}
           </section>
           <section className="painel">
             <h2>Resumo</h2>

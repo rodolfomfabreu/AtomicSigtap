@@ -5,6 +5,10 @@ import App from './App';
 import { CompetenciaProvider } from './lib/competencia';
 import ErroTela from './componentes/ErroTela';
 import './estilos.css';
+import { guardarEstatico } from './lib/estatico';
+
+// Guarda o conteúdo pré-renderizado antes do React substituir (ver lib/estatico.jsx)
+guardarEstatico();
 
 createRoot(document.getElementById('raiz')).render(
   <React.StrictMode>

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { FiChevronRight } from 'react-icons/fi';
-import { Carregando, Erro } from '../componentes/Estados';
+import { Carregando, Erro, Aviso } from '../componentes/Estados';
 import Cruzar from '../componentes/Cruzar';
 import ProcedimentosFiltraveis from '../componentes/ProcedimentosFiltraveis';
 import { HistoricoContagem } from '../componentes/Graficos';
@@ -10,6 +10,7 @@ import { useCompetencia } from '../lib/competencia';
 import { useConsulta } from '../lib/api';
 import { numero } from '../lib/formato';
 import { useTitulo } from '../lib/titulo';
+import { useEstatico, ConteudoEstatico, NaoIndexar } from '../lib/estatico';
 
 export default function Cbo() {
   const { codigo } = useParams();
@@ -18,20 +19,28 @@ export default function Cbo() {
   const { competencia } = useCompetencia();
   const r = useConsulta(competencia ? `/ocupacoes/${codigo}` : null, { competencia, cid });
   const f = r.dados && r.dados.codigo === codigo.toUpperCase().replace(/[^0-9A-Z]/g, '') ? r.dados : null;
-  useTitulo(f ? `CBO ${f.codigo_formatado} ${f.nome}` : 'Ocupação');
+  const estatico = useEstatico();
+  useTitulo(
+    f ? `CBO ${f.codigo_formatado} - ${f.nome} | Procedimentos SIGTAP` : 'Ocupação',
+    f ? `CBO ${f.codigo_formatado} - ${f.nome}: procedimentos da Tabela SUS (SIGTAP) que esta ocupação pode executar, por grupo, com valores e cruzamento com CID-10.` : null,
+  );
   const maxGrupo = useMemo(() => Math.max(1, ...(f?.grupos || []).map((g) => g.procedimentos)), [f]);
 
   const cruzar = (v) => setParams(v ? { cid: v } : {}, { replace: true });
 
+  if (r.erro && !f && r.erro.status !== 404 && estatico) {
+    return <ConteudoEstatico html={estatico} aviso={<Aviso tipo="info">Não foi possível atualizar os dados agora; mostrando a versão salva da competência vigente.</Aviso>} />;
+  }
   if (r.erro && !f) {
     return (
       <div className="miolo" style={{ paddingTop: 34 }}>
+        {r.erro.status === 404 && <NaoIndexar />}
         <Erro erro={r.erro} />
         {r.erro.status === 404 && <p className="apagado">Confira o código ou <Link to={`/busca?tipo=cbo&q=${codigo}`}>busque a ocupação</Link>.</p>}
       </div>
     );
   }
-  if (!f) return <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
+  if (!f) return estatico ? <ConteudoEstatico html={estatico} /> : <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
 
   const proprio = f.familia.find((x) => x.codigo === f.codigo);
 

@@ -87,7 +87,11 @@ main { flex: 1; padding-bottom: 56px; }
   backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--linha);
 }
-.topo .miolo { display: flex; align-items: center; gap: 18px; height: 62px; }
+.topo .miolo { display: flex; align-items: center; gap: 18px; height: 62px; max-width: 1400px; min-width: 0; }
+/* O topo tem mais itens que cabem em 1120px: ele usa até 1400px e, se
+   ainda faltar espaço, o menu encolhe em vez de empurrar a página pro lado */
+.topo .nav { min-width: 0; overflow: hidden; }
+.topo .direita { flex-shrink: 0; }
 .marca { display: flex; align-items: center; gap: 10px; color: var(--tinta); white-space: nowrap; flex-shrink: 0; }
 .marca:hover { text-decoration: none; }
 .marca svg { flex-shrink: 0; }
@@ -118,16 +122,16 @@ main { flex: 1; padding-bottom: 56px; }
 .so-celular { display: none; }
 /* Com a busca do topo visível, o subtítulo da marca sai para caber tudo */
 .topo.com-busca .marca span { display: none; }
-/* Topo com 6 itens de menu: primeiro some o rótulo "Competência", depois a busca do topo */
-@media (max-width: 1360px) { .seletor-comp > span { display: none; } .busca-topo { width: 190px; } }
-@media (max-width: 1240px) { .busca-topo { display: none; } }
-/* Tablet: menu recolhido (☰) a partir de 860px - o topo com 6 itens não cabe */
-@media (max-width: 860px) {
+/* Topo com 7 itens de menu: primeiro some o rótulo "Competência", depois a busca do topo */
+@media (max-width: 1440px) { .seletor-comp > span { display: none; } .busca-topo { width: 190px; } }
+@media (max-width: 1320px) { .busca-topo { display: none; } }
+/* Tablet: menu recolhido (☰) a partir de 940px - o topo com 7 itens não cabe */
+@media (max-width: 940px) {
   .nav { display: none; }
   .nav.aberto { display: flex; position: absolute; top: 62px; left: 0; right: 0; flex-direction: column; background: var(--papel); border-bottom: 1px solid var(--linha); padding: 8px 16px 14px; margin: 0; box-shadow: var(--sombra); }
   .so-celular { display: inline-grid; }
 }
-@media (max-width: 1000px) { .nav a { padding: 7px 7px; font-size: 13.5px; } .marca b { font-size: 17px; } .topo .miolo { gap: 12px; } }
+@media (max-width: 1080px) { .nav a { padding: 7px 7px; font-size: 13.5px; } .marca b { font-size: 17px; } .topo .miolo { gap: 12px; } }
 
 .faixa-historica { background: var(--ouro-suave); color: var(--ouro); border-bottom: 1px solid var(--linha); font-size: 13px; }
 .faixa-historica .miolo { display: flex; align-items: center; gap: 10px; padding-top: 7px; padding-bottom: 7px; flex-wrap: wrap; }
@@ -365,6 +369,64 @@ main { flex: 1; padding-bottom: 56px; }
 .nao-encontrada { text-align: center; padding: 90px 0; }
 .nao-encontrada .grande { font-family: Fraunces, Georgia, serif; font-size: 110px; line-height: 1; color: var(--acento); font-weight: 600; }
 
+/* Histórico do procedimento */
+.historico h2 { margin-bottom: 16px; }
+.historico-resumo { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--linha); border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
+.historico-resumo > div { padding: 12px 16px; border-left: 1px solid var(--linha); display: flex; flex-direction: column; gap: 2px; }
+.historico-resumo > div:first-child { border-left: 0; }
+.historico-resumo span { font-size: 12px; color: var(--apagado); }
+.historico-resumo strong { font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.historico-resumo em { font-style: normal; font-size: 12px; font-weight: 600; }
+.historico-resumo .destaque.verde { background: var(--verde-suave); }
+.historico-resumo .destaque.verde strong, .historico-resumo .destaque.verde em { color: var(--verde); }
+.historico-resumo .destaque.vinho { background: var(--vinho-suave); }
+.historico-resumo .destaque.vinho strong, .historico-resumo .destaque.vinho em { color: var(--vinho); }
+.presenca { display: flex; gap: 3px; align-items: stretch; height: 26px; }
+.presenca button { all: unset; flex: 1; min-width: 3px; border-radius: 4px; background: var(--papel-2); border: 1px dashed var(--linha-forte); cursor: default; position: relative; }
+.presenca button.sim { background: color-mix(in srgb, var(--acento) 45%, transparent); border: 0; cursor: pointer; }
+.presenca button.sim:hover { background: var(--acento); }
+.presenca button.mudou { background: var(--azul); }
+.presenca button.sim.mudou:hover { background: color-mix(in srgb, var(--azul) 75%, var(--tinta)); }
+.presenca button.atual { outline: 2px solid var(--tinta); outline-offset: 1px; }
+.presenca button:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.presenca-legenda { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: var(--apagado); margin-top: 6px; flex-wrap: wrap; }
+.presenca-legenda .itens { display: inline-flex; gap: 6px 12px; align-items: center; flex-wrap: wrap; }
+.presenca-legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: -6px; vertical-align: -1px; }
+.presenca-legenda i.sim { background: color-mix(in srgb, var(--acento) 45%, transparent); }
+.presenca-legenda i.sim.mudou { background: var(--azul); }
+.presenca-legenda i.nao { background: var(--papel-2); border: 1px dashed var(--linha-forte); }
+.historico-nota { font-size: 13px; margin: 12px 0 0; display: flex; gap: 6px; align-items: baseline; }
+.historico-nota svg { flex-shrink: 0; position: relative; top: 2px; }
+.linha-tempo { list-style: none; margin: 8px 0 0; padding: 0 0 0 4px; position: relative; }
+.linha-tempo::before { content: ''; position: absolute; left: 15px; top: 18px; bottom: 18px; width: 2px; background: var(--linha); }
+.linha-tempo > li { position: relative; padding-left: 36px; }
+.linha-tempo .marco { position: absolute; left: 0; top: 13px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--cartao); border: 2px solid currentColor; }
+.linha-tempo .marco.verde { color: var(--verde); }
+.linha-tempo .marco.azul { color: var(--azul); }
+.linha-tempo .marco.vinho { color: var(--vinho); }
+.linha-tempo .marco.ouro { color: var(--ouro); }
+.linha-tempo .quando { font-family: Fraunces, Georgia, serif; font-size: 17px; font-weight: 600; }
+.link-acao { all: unset; cursor: pointer; margin-left: auto; font-size: 12.5px; color: var(--acento); display: inline-flex; gap: 4px; align-items: center; }
+.link-acao:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Downloads */
+.download-destaque { display: flex; gap: 18px; align-items: flex-start; }
+.icone-grande { flex-shrink: 0; width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: var(--acento-suave); color: var(--acento); }
+.download-acoes { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.lista-downloads > li { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 6px 18px; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--linha); }
+.lista-downloads > li:last-child { border-bottom: 0; }
+.lista-downloads .quando { display: flex; flex-direction: column; line-height: 1.3; }
+.lista-downloads .quando strong { font-family: Fraunces, Georgia, serif; font-size: 20px; font-weight: 600; }
+.lista-downloads .quando span { font-size: 12px; }
+.lista-downloads .sobre { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 13px; }
+.lista-downloads .sobre .mono { color: var(--tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista-downloads .selos { display: flex; gap: 6px; flex-wrap: wrap; }
+.lista-downloads .selo:hover { text-decoration: none; }
+
+/* Conteúdo estático (páginas geradas no build, antes do React carregar) */
+.estatico-lista { columns: 2 260px; column-gap: 28px; padding-left: 18px; }
+.estatico-lista li { break-inside: avoid; margin-bottom: 4px; }
+
 /* ------------------------------------------------------------ responsivo */
 @media (max-width: 960px) {
   .ficha-grade { grid-template-columns: 1fr; }
@@ -391,6 +453,13 @@ main { flex: 1; padding-bottom: 56px; }
   .miolo { padding: 0 16px; }
 }
 @media (max-width: 760px) {
+  .historico-resumo { grid-template-columns: repeat(2, 1fr); }
+  .historico-resumo > div:nth-child(3) { border-left: 0; }
+  .historico-resumo > div:nth-child(n + 3) { border-top: 1px solid var(--linha); }
+  .lista-downloads > li { grid-template-columns: 1fr auto; }
+  .lista-downloads .sobre { grid-column: 1 / 3; grid-row: 2; }
+  .download-destaque { flex-direction: column; }
+  .link-acao { margin-left: 0; }
   .topo .miolo { gap: 10px; }
   .topo .direita { gap: 6px; }
   .seletor-comp select { padding: 6px 24px 6px 8px; font-size: 12.5px; }
@@ -404,3 +473,9 @@ main { flex: 1; padding-bottom: 56px; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Conteúdo estático mostrado pelo React enquanto a API não responde (lib/estatico.jsx) */
+.conteudo-estatico h1 { font-size: clamp(26px, 3.8vw, 40px); line-height: 1.12; margin: 6px 0 12px; }
+.conteudo-estatico h2 { font-size: 20px; margin: 26px 0 10px; }
+.conteudo-estatico p { color: var(--tinta-2); max-width: 75ch; }
+.conteudo-estatico .aviso { margin-bottom: 16px; }

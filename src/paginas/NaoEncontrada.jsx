@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTitulo } from '../lib/titulo';
 
 export default function NaoEncontrada() {
-  useTitulo('Página não encontrada');
+  useTitulo('Página não encontrada', null, { noindex: true, canonico: false });
   return (
     <div className="nao-encontrada miolo">
       <div className="grande">404</div>

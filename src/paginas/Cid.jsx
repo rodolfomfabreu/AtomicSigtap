@@ -9,6 +9,7 @@ import { BotaoCopiar, BotaoCompartilhar } from './Procedimento';
 import { useCompetencia } from '../lib/competencia';
 import { useConsulta } from '../lib/api';
 import { useTitulo } from '../lib/titulo';
+import { useEstatico, ConteudoEstatico, NaoIndexar } from '../lib/estatico';
 
 export default function Cid() {
   const { codigo } = useParams();
@@ -18,19 +19,27 @@ export default function Cid() {
   const r = useConsulta(competencia ? `/cids/${codigo}` : null, { competencia, cbo });
   // Mantém a ficha anterior na tela enquanto o cruzamento recarrega
   const f = r.dados && r.dados.codigo === codigo.toUpperCase().replace(/[^A-Z0-9]/g, '') ? r.dados : null;
-  useTitulo(f ? `CID ${f.codigo_formatado} ${f.nome}` : 'CID-10');
+  const estatico = useEstatico();
+  useTitulo(
+    f ? `CID ${f.codigo_formatado} - ${f.nome} | Procedimentos SIGTAP` : 'CID-10',
+    f ? `CID ${f.codigo_formatado} - ${f.nome}: procedimentos da Tabela SUS (SIGTAP) compatíveis com este diagnóstico, valores e ocupações (CBO) que podem executar.` : null,
+  );
 
   const cruzar = (v) => setParams(v ? { cbo: v } : {}, { replace: true });
 
+  if (r.erro && !f && r.erro.status !== 404 && estatico) {
+    return <ConteudoEstatico html={estatico} aviso={<Aviso tipo="info">Não foi possível atualizar os dados agora; mostrando a versão salva da competência vigente.</Aviso>} />;
+  }
   if (r.erro && !f) {
     return (
       <div className="miolo" style={{ paddingTop: 34 }}>
+        {r.erro.status === 404 && <NaoIndexar />}
         <Erro erro={r.erro} />
         {r.erro.status === 404 && <p className="apagado">Confira o código ou <Link to={`/busca?tipo=cid&q=${codigo}`}>busque o CID</Link>.</p>}
       </div>
     );
   }
-  if (!f) return <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
+  if (!f) return estatico ? <ConteudoEstatico html={estatico} /> : <div className="miolo" style={{ paddingTop: 34 }}><Carregando linhas={10} /></div>;
 
   const agravo = Number(f.agravo);
 

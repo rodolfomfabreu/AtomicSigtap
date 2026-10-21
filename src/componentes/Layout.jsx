@@ -48,6 +48,7 @@ export default function Layout() {
             <NavLink to="/busca?tipo=cid" className={() => (local.pathname.startsWith('/cid') ? 'ativo' : '')}>CID-10</NavLink>
             <NavLink to="/busca?tipo=cbo" className={() => (local.pathname.startsWith('/cbo') ? 'ativo' : '')}>Ocupações</NavLink>
             <NavLink to="/novidades" className={({ isActive }) => (isActive ? 'ativo' : '')}>Novidades</NavLink>
+            <NavLink to="/downloads" className={({ isActive }) => (isActive ? 'ativo' : '')}>Downloads</NavLink>
             <NavLink to="/contato" className={({ isActive }) => (isActive ? 'ativo' : '')}>Contato</NavLink>
           </nav>
           <div className="direita">
@@ -93,6 +94,8 @@ export default function Layout() {
           <span>Dados oficiais publicados mensalmente pelo DATASUS/Ministério da Saúde (SIGTAP). Esta consulta é informativa; em caso de divergência, vale a publicação oficial.</span>
           <span className="credito">
             Criado por <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer"><FiGithub size={13} /> {AUTOR}</a>
+            {' '}· <Link to="/downloads">Download da tabela</Link>
+            {' '}· <Link to="/novidades">Novidades</Link>
             {' '}· <Link to="/contato">Contato</Link>
           </span>
         </div>

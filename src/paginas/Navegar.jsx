@@ -34,7 +34,10 @@ export default function Navegar() {
     forma && { cod: forma, nome: nome(formas, forma), url: `/navegar/${grupo}/${subgrupo}/${forma}` },
   ].filter(Boolean);
   const atual = caminho[caminho.length - 1];
-  useTitulo(atual?.nome || 'Navegar pela tabela');
+  useTitulo(
+    atual?.nome ? `${caminho.map((c) => c.cod).join('.')} ${atual.nome} | Tabela SIGTAP` : 'Navegar pela Tabela SIGTAP: grupos e subgrupos',
+    atual?.nome ? `Procedimentos da Tabela SUS (SIGTAP) em ${caminho.map((c) => `${c.cod} ${c.nome}`).join(' › ')}: códigos, valores e regras.` : null,
+  );
 
   const nivelAtual = forma ? null : subgrupo ? formas : grupo ? subgrupos : grupos;
   const prefixo = [grupo, subgrupo].filter(Boolean).join('.');
